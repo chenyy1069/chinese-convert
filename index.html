@@ -2,10 +2,10 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8">
-  <title>Chinese-Convert</title>
+  <title>简繁中文转换器</title>
   <style>
     body {
-      background-color: #eaf6ff; /* 淡蓝色背景 */
+      background-color: #eaf6ff;
       font-family: "Microsoft Yahei", sans-serif;
       margin: 0;
       padding: 0;
@@ -55,7 +55,7 @@
       position: absolute;
       top: -50px;
       right: 0;
-      background-color: #ffc2c2; /* 淡红色 */
+      background-color: #ffc2c2;
       color: black;
       padding: 6px 12px;
       font-size: 14px;
@@ -87,14 +87,26 @@
       color: rgba(0, 128, 255, 0.8);
       text-decoration: underline;
     }
+
+    #variant-select {
+      margin: 10px auto;
+      display: block;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 14px;
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/opencc-js@1.0.5/dist/umd/full.js"></script>
 </head>
 <body>
   <div class="container">
-    <button id="clear-btn">清空</button>
+    <button id="clear-btn">Clear</button>
     <textarea id="simplified" placeholder="输入简体中文..."></textarea>
-    <button id="convert-btn">⇅ 转换 ⇅</button>
+    <select id="variant-select">
+      <option value="twp">臺灣繁體</option>
+      <option value="hk">香港繁體</option>
+    </select>
+    <button id="convert-btn">⇅ Convert ⇅</button>
     <textarea id="traditional" placeholder="输入繁體中文..."></textarea>
   </div>
 
@@ -105,27 +117,55 @@
     const traditionalBox = document.getElementById("traditional");
     const convertBtn = document.getElementById("convert-btn");
     const clearBtn = document.getElementById("clear-btn");
+    const variantSelect = document.getElementById("variant-select");
 
-    const converterS2T = OpenCC.Converter({ from: 'cn', to: 'twp' }); // 简体 -> 繁体（台式）
-    const converterT2S = OpenCC.Converter({ from: 'twp', to: 'cn' }); // 繁体 -> 简体
+    let converterS2T = OpenCC.Converter({ from: 'cn', to: variantSelect.value });
+    let converterT2S = OpenCC.Converter({ from: variantSelect.value, to: 'cn' });
+
+    let lastSimplifiedValue = "";
+    let lastTraditionalValue = "";
+    let lastModified = null;
+
+    variantSelect.onchange = () => {
+      converterS2T = OpenCC.Converter({ from: 'cn', to: variantSelect.value });
+      converterT2S = OpenCC.Converter({ from: variantSelect.value, to: 'cn' });
+      lastSimplifiedValue = "";
+      lastTraditionalValue = "";
+      lastModified = null;
+    };
 
     convertBtn.onclick = () => {
       const simpText = simplifiedBox.value.trim();
       const tradText = traditionalBox.value.trim();
 
-      if (simpText && !tradText) {
+      if (lastModified === 'simplified') {
         traditionalBox.value = converterS2T(simpText);
-      } else if (tradText && !simpText) {
+        lastSimplifiedValue = simpText;
+        lastTraditionalValue = traditionalBox.value;
+      } else if (lastModified === 'traditional') {
         simplifiedBox.value = converterT2S(tradText);
+        lastTraditionalValue = tradText;
+        lastSimplifiedValue = simplifiedBox.value;
       } else {
-        alert("请只填写一个输入框，再点击转换");
+        alert("请填写一个输入框，再点击转换");
       }
     };
 
     clearBtn.onclick = () => {
       simplifiedBox.value = "";
       traditionalBox.value = "";
+      lastSimplifiedValue = "";
+      lastTraditionalValue = "";
+      lastModified = null;
     };
+
+    simplifiedBox.addEventListener('input', () => {
+      lastModified = 'simplified';
+    });
+
+    traditionalBox.addEventListener('input', () => {
+      lastModified = 'traditional';
+    });
   </script>
 </body>
 </html>
