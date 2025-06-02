@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>简繁中文转换器</title>
+  <style>
+    body {
+      background-color: #eaf6ff; /* 淡蓝色背景 */
+      font-family: "Microsoft Yahei", sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      margin-top: 80px;
+      width: 90%;
+      max-width: 600px;
+      position: relative;
+    }
+
+    textarea {
+      width: 100%;
+      height: 150px;
+      margin: 10px 0;
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      resize: none;
+      box-sizing: border-box;
+    }
+
+    button {
+      display: block;
+      margin: 10px auto;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #66b3ff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #3399ff;
+    }
+
+    #clear-btn {
+      position: absolute;
+      top: -50px;
+      right: 0;
+      background-color: #ffc2c2; /* 淡红色 */
+      color: black;
+      padding: 6px 12px;
+      font-size: 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      border: none;
+    }
+
+    #clear-btn:hover {
+      background-color: #ff9e9e;
+    }
+
+    .watermark {
+      position: fixed;
+      bottom: 10px;
+      width: 100%;
+      text-align: center;
+      font-size: 14px;
+      color: rgba(0, 0, 0, 0.3);
+      user-select: none;
+    }
+
+    .watermark a {
+      color: rgba(0, 128, 255, 0.5);
+      text-decoration: none;
+    }
+
+    .watermark a:hover {
+      color: rgba(0, 128, 255, 0.8);
+      text-decoration: underline;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/opencc-js@1.0.5/dist/umd/full.js"></script>
+</head>
+<body>
+  <div class="container">
+    <button id="clear-btn">清空</button>
+    <textarea id="simplified" placeholder="输入简体中文..."></textarea>
+    <button id="convert-btn">⇅ 转换 ⇅</button>
+    <textarea id="traditional" placeholder="输入繁體中文..."></textarea>
+  </div>
+
+  <div class="watermark">Designed by <a href="https://github.com/chenyy1069" target="_blank">Chenyy1069</a></div>
+
+  <script>
+    const simplifiedBox = document.getElementById("simplified");
+    const traditionalBox = document.getElementById("traditional");
+    const convertBtn = document.getElementById("convert-btn");
+    const clearBtn = document.getElementById("clear-btn");
+
+    const converterS2T = OpenCC.Converter({ from: 'cn', to: 'twp' }); // 简体 -> 繁体（台式）
+    const converterT2S = OpenCC.Converter({ from: 'twp', to: 'cn' }); // 繁体 -> 简体
+
+    convertBtn.onclick = () => {
+      const simpText = simplifiedBox.value.trim();
+      const tradText = traditionalBox.value.trim();
+
+      if (simpText && !tradText) {
+        traditionalBox.value = converterS2T(simpText);
+      } else if (tradText && !simpText) {
+        simplifiedBox.value = converterT2S(tradText);
+      } else {
+        alert("请只填写一个输入框，再点击转换");
+      }
+    };
+
+    clearBtn.onclick = () => {
+      simplifiedBox.value = "";
+      traditionalBox.value = "";
+    };
+  </script>
+</body>
+</html>
