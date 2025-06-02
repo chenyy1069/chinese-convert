@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8">
-  <title>Chinese-Convert</title>
+  <title>简繁中文转换器</title>
   <style>
     body {
       background-color: #eaf6ff;
@@ -106,7 +106,7 @@
       <option value="twp">臺灣繁體</option>
       <option value="hk">香港繁體</option>
     </select>
-    <button id="convert-btn">⇅ Convert ⇅</button>
+    <button id="convert-btn">Convert</button>
     <textarea id="traditional" placeholder="输入繁體中文..."></textarea>
   </div>
 
@@ -129,23 +129,22 @@
     variantSelect.onchange = () => {
       converterS2T = OpenCC.Converter({ from: 'cn', to: variantSelect.value });
       converterT2S = OpenCC.Converter({ from: variantSelect.value, to: 'cn' });
-      lastSimplifiedValue = "";
-      lastTraditionalValue = "";
-      lastModified = null;
     };
 
     convertBtn.onclick = () => {
       const simpText = simplifiedBox.value.trim();
       const tradText = traditionalBox.value.trim();
 
-      if (lastModified === 'simplified') {
+      if (lastModified === 'simplified' || (simpText && !tradText)) {
         traditionalBox.value = converterS2T(simpText);
         lastSimplifiedValue = simpText;
         lastTraditionalValue = traditionalBox.value;
-      } else if (lastModified === 'traditional') {
+        lastModified = 'simplified';
+      } else if (lastModified === 'traditional' || (!simpText && tradText)) {
         simplifiedBox.value = converterT2S(tradText);
         lastTraditionalValue = tradText;
         lastSimplifiedValue = simplifiedBox.value;
+        lastModified = 'traditional';
       } else {
         alert("请填写一个输入框，再点击转换");
       }
